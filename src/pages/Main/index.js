@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Keyboard, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import api from '../../services/api'
+import api from '../../services/api';
 
 import { Container, Form, Input, SubmitButton, List, User, Avatar, Name, Bio, ProfileButton, ProfileButtonText } from './styles';
 
@@ -10,6 +11,26 @@ export default function Main() {
   const [newUser, setNewUser] = useState('alextavella');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const userKey = 'users';
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      const users = await AsyncStorage.getItem(userKey);
+      if (users) {
+        setUsers(JSON.parse(users));
+        setNewUser('');
+      }
+    }
+
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    if (users && users.length > 0) {
+      AsyncStorage.setItem(userKey, JSON.stringify(users));
+    }
+  }, [users]);
 
   const handleSubmit = async () => {
     if (loading) return;
